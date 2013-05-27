@@ -85,14 +85,14 @@
                                    (e/content comments)
                                    (e/set-attr :href (str base-url comments-link))))
 
-(e/deftemplate page "templates/hn.html" [items]
+(e/deftemplate page-template "templates/hn.html" [items]
   [:#content :ol] (e/content (map item-model items)))
 
 (defn render-page []
   (let [container (extract-container (fetch-hn))
         lines (extract-lines container)
         items (extract-items lines)]
-    (page items)))
+    (page-template items)))
 
 (c/defroutes app
   (c/GET "/" [] (render-page)))
