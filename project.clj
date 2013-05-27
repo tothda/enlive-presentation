@@ -5,6 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [compojure "1.1.5"]
+                 [ring/ring-jetty-adapter "1.2.0-beta3"]
                  [enlive "1.1.1"]]
   :ring {:handler enlive-demo.core/app}
   :plugins [[lein-ring "0.8.5"]])

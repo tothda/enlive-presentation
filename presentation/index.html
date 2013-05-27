@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Enlive introduction: TODO: subtitle</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/solarized.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+    <style>
+      .reveal section img.simple {
+        border: none;
+        box-shadow: none;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+        <section>
+          <h1>Enlive</h1>
+          <h3>functional HTML templating</h3>
+          <p>
+            <small>Created by <a href="http://hiperkocka.hu">Tóth Dávid</a> / <a href="http://twitter.com/tothda">@tothda</a></small>
+          </p>
+        </section>
+
+        <section>
+          <section>
+            <h2>What is HTML templating?</h2>
+          </section>
+          <section>
+            <h2>Solutions</h2>
+          </section>
+          <section>
+            <h2>Java Servlet</h2>
+            <p>
+              Generating html from code
+            </p>
+            <pre><code>
+public class HelloWWW extends HttpServlet {
+  public void doGet(HttpServletRequest request,
+                    HttpServletResponse response)
+      throws ServletException, IOException {
+    response.setContentType("text/html");
+    PrintWriter out = response.getWriter();
+    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 " +
+                                        "Transitional//EN\">\n" +
+                "<HTML>\n" +
+                "<HEAD><TITLE>Hello WWW</TITLE></HEAD>\n" +
+                "<BODY>\n" +
+                "<H1>Hello WWW</H1>\n" +
+                "</BODY></HTML>");
+  }
+}
+              </code></pre>
+            </section>
+
+            <section>
+              <h2>ERB</h2>
+              <pre><code>
+<ul>
+  <% for @item in @shopping_list %>
+    <li><%= @item %></li>
+  <% end %>
+</ul>
+              </code></pre>
+            </section>
+
+            <section>
+              <h2>Handlebars</h2>
+              <pre><code>
+<div class="post">
+  <h1>By {{fullName author}}</h1>
+  <div class="body">{{body}}</div>
+
+  <h1>Comments</h1>
+
+  {{#each comments}}
+    <h2>By {{fullName author}}</h2>
+    <div class="body">{{body}}</div>
+  {{/each}}
+</div>
+              </code></pre>
+            </section>
+          </section>
+        <section>
+          <section>
+            <h1>Enlive</h1>
+            <h2>by Christophe Grand</h2>
+            <a href="http://clj-me.cgrand.net/">http://clj-me.cgrand.net/</a>
+          </section>
+          <section>
+            <h1>TL;DR</h1>
+            <blockquote>
+              You take that plain HTML in and use selectors to select pieces of HTML and transformation functions to transform the HTML the way you want.
+            </blockquote>
+            <br>
+            <p>By Anthony Grimes</p>
+          </section>
+          <section data-transition="none">
+            <img class="simple" src="images/enlive1.png" alt="">
+          </section>
+          <section data-transition="none">
+            <img class="simple" src="images/enlive2.png" alt="">
+          </section>
+          <section data-transition="none">
+            <img class="simple" src="images/enlive3.png" alt="">
+          </section>
+          <section data-transition="none">
+            <img class="simple" src="images/enlive4.png" alt="">
+          </section>
+          <section data-transition="none">
+            <img class="simple" src="images/enlive5.png" alt="">
+          </section>
+          <section data-transition="none">
+            <img class="simple" src="images/enlive6.png" alt="">
+          </section>
+          <section data-transition="none">
+            <img class="simple" src="images/enlive7.png" alt="">
+          </section>
+          <section data-transition="none">
+            <img class="simple" src="images/enlive8.png" alt="">
+          </section>
+          <section>
+            <h2>Why Enlive different?</h2>
+            <ol>
+              <li class="fragment">Code and markup are completely separate.</li>
+              <li class="fragment">You get to use CSS like syntax to manipulate HTML.</li>
+              <li class="fragment">Template inheritance isn’t some fancy trick, it’s just function composition.</li>
+              <li class="fragment">You have access to the full power of Clojure to manipulate your templates (yes, macros!).</li>
+            </ol>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Parsing</h2>
+          </section>
+          <section>
+            <h2>Parsers</h2>
+            <p>A parser is a function from InputStream to nodes.</p>
+            <p>TODO: what is the difference between tagsoup and jsoup</p>
+            <ol>
+              <li><a href="http://home.ccil.org/~cowan/XML/tagsoup/">TagSoup</a></li>
+              <li><a href="http://jsoup.org/">jsoup</a></li>
+              <li>xml-parser</li>
+            </ol>
+          </section>
+          <section>
+            <pre><code>
+              ;; loading from URL
+              (html-resource (java.net.URL. "http://google.com"))
+
+              ;; loading from the CLASSPATH
+              (html-resource "index.html")
+
+              ;; loading from String
+              (html-resource 
+                (java.io.StringReader. "<div>hello</div>"))
+
+              ;; loading from File
+              (html-resource (java.io.File "/tmp/foo.html"))
+            </code></pre>
+          </section>
+          <section>
+            <h2>Data stucture</h2>
+            <h3>aka. nodes</h3>
+            <pre><code class="clojure">
+(html-snippet "<ul id='list'><li>one</li><li>two</li></ul>") ; =>
+
+({:tag :ul,
+  :attrs {:id "list"},
+  :content
+  ({:tag :li, :attrs nil, :content ("one")}
+   {:tag :li, :attrs nil, :content ("two")})})
+            </code></pre>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Selectors</h2>
+          </section>
+          <section>
+            <blockquote>
+              "At the core, every selector is a vector. The items of this vector are called steps."
+            </blockquote>
+            <br>
+            <p><code class="clojure">[:div#header :h1 :span]</code></p>
+          </section>
+          <section>
+            <blockquote>
+              A step is a predicate, for example :h1, :p.some-class or even 
+(attr? :lang).
+            </blockquote>
+            <br>
+            <p><code class="clojure">[:div#header :h1 :span]</code></p>
+          </section>
+          <section>
+            <blockquote>
+              To select elements which match several predicates, you need to group
+predicates into a vector: <strong>inside steps, vectors mean “and”</strong>.
+            </blockquote>
+            <br>
+            <pre><code class="clojure">
+[:p (attr? :lang)] ; match any elements with a lang attribute 
+                   ; inside a p element
+
+[[:p (attr? :lang)]] ; match any p with a lang attribute.
+            </code></pre>
+          </section>
+          <section>
+            <blockquote>
+              Sets group predicates in an union. <strong>Hence inside steps, sets mean
+              “or”.</strong>
+            </blockquote>
+            <br>
+            <pre><code>
+[#{:div.class1 :div.class2}] ;; match every div which has either class1 or class2.
+            </code></pre>
+          </section>
+          <section>
+            <ul>
+              <li><a href="http://enlive.cgrand.net/syntax.html">http://enlive.cgrand.net/syntax.html</a></li>
+              <li>TODO: pred</li>
+              <li>TODO: text-pred</li>
+              <li>TODO: zip-pred</li>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Transformations</h2>
+          </section>
+          <section>
+            <blockquote>
+              Transformations are higher order functions which take one argument (the selected node), and return nil, another node or seq of nodes.
+            </blockquote>
+          </section>
+          <section data-transition="none">
+            <img class="simple" src="images/trans1.png" alt="">
+          </section>
+          <section data-transition="none" data-transition-speed="fast">
+            <img class="simple" src="images/trans2.png" alt="">
+          </section>
+          <section data-transition="none" data-transition-speed="fast">
+            <img class="simple" src="images/trans3.png" alt="">
+          </section>
+          <section data-transition="none" data-transition-speed="fast">
+            <img class="simple" src="images/trans4.png" alt="">
+          </section>
+          <section>
+            <h2>Built-in transformations</h2>
+            <ul>
+              <li><code>content</code>, <code>html-content</code></li>
+              <li><code>wrap</code>, <code>unwrap</code></li>
+              <li(defsnippet s1 "blog_template.html" [:.post]
+  [title author body]
+  [:h2.title] (content title)
+  [:span.author] (content author)
+  [:p.body] (content body))><code>set-attr</code>, <code>remove-attr</code></li>
+              <li><code>add-class</code>, <code>remove-class</code></li>
+              <li><code>append</code>, <code>prepend</code>, <code>after</code>, <code>before</code></li>
+              <li><code>substitute</code></li><code></code>
+              <li><code>move</code></li>
+              <li><code>do-></code></li>
+              <li><code>clone-for</code></li>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Templates</h2>
+          </section>
+          <section>
+            <h2>Snippet</h2>
+            <blockquote>A snippet is a function that returns a seq of nodes, it can be used as a
+building block for more complex templates.</blockquote>
+          </section>
+          <section>
+            <pre><code class="clojure">
+(defsnippet s1 "blog_template.html" [:.post]
+  [title author body]
+  [:h2.title] (content title)
+  [:span.author] (content author)
+  [:p.body] (content body))
+            </code></pre>
+          </section>
+          <section>
+            <h2>Template</h2>
+            <blockquote>
+              A template is a function that returns a seq of string — basically it’s a
+snippet whose output is serialized. Templates return a seq of strings to avoid
+building the whole string.
+            </blockquote>
+          </section>
+          <section>
+            <pre><code class="clojure">
+(deftemplate blog-template "blog_template.html"
+  [title posts]
+  [:h1] (content title)
+  [:#posts] (content (map post-snippet posts)))
+            </code></pre>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Demo</h2>
+          </section>
+          <section>
+            <h2>Hacker News redesign</h2>
+          </section>
+          <section>
+            <h2><a href="https://news.ycombinator.com/">https://news.ycombinator.com/</a></h2>
+            <img src="images/hn.png" alt="Hacker News screenshot">
+          </section>
+          <section>
+            <h2><a href="http://jsbin.com/icopaz/2">http://jsbin.com/icopaz/2</a></h2>
+            <img src="images/hn2.png" alt="Hacker News redesign concept">
+          </section>
+          <section>
+            <img src="images/demo.png" alt="Demo architecture">
+          </section>
+        </section>
+      </div>
+
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+          // { src: 'plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
+          // { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

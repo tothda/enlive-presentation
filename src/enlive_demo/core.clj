@@ -12,13 +12,28 @@
 
 (def base-url "https://news.ycombinator.com/")
 
-(defn fetch-url [url]
-  (e/html-resource (java.net.URL. url)))
+(def hn-source (java.net.URL. base-url))
+(def hn-source "templates/hn-orig.html")
+(defn fetch-hn [] (e/html-resource hn-source))
 
-(defn hn-dom [] (fetch-url base-url))
+(fetch-hn)
 
-(defn content []
- (first (e/select (hn-dom) [:body :> :center :> :table [:tr (e/nth-child 3)]])))
+;; extract container
+
+(defn extract-container [nodes]
+ (first (e/select nodes [:body :> :center :> :table [:tr (e/nth-child 3)]])))
+
+(extract-container (fetch-hn))
+
+;; [{:title "..."
+;;   :link "..."} {...} ... {...}]
+
+;; extract lines
+
+(defn extract-lines [container]
+  (map vector
+     (butlast (e/select container [:table [:tr (e/has [:td.title])]]))
+     (e/select container [:table [:tr (e/has [:td.subtext])]])))
 
 ;; extract fields
 
@@ -27,23 +42,23 @@
     {:title (e/text elem)
      :title-link (get-in elem [:attrs :href])}))
 
-(defn extract-user [html]
-  {:user (e/text (first (e/select html [:tr :td.subtext [:a (e/nth-of-type 1)]])))})
+(defn extract-user [line2]
+  {:user (e/text (first (e/select line2 [:tr :td.subtext [:a (e/nth-of-type 1)]])))})
 
-(defn extract-ago [html]
+(defn extract-ago [line2]
   {:ago (re-find
           #"\d+ \p{Alpha}+ ago"
-          (e/text (first (e/select html [:tr :td.subtext]))))})
+          (e/text (first (e/select line2 [:tr :td.subtext]))))})
 
-(defn extract-comments [html]
-  (let [elem (-> html
+(defn extract-comments [line2]
+  (let [elem (-> line2
                  (e/select [:td.subtext [:a (e/nth-of-type 2)]])
                   first)]
     {:comments (e/text elem)
      :comments-link (get-in elem [:attrs :href])}))
 
-(defn extract-points [html]
-  {:points (e/text (first (e/select html [[:td (e/nth-child 2)] :span])))})
+(defn extract-points [line2]
+  {:points (e/text (first (e/select line2 [[:td (e/nth-child 2)] :span])))})
 
 (defn extract-data [[line1 line2]]
   (merge (extract-title line1)
@@ -52,11 +67,8 @@
          (extract-points line2)
          (extract-comments line2)))
 
-(defn extract-lines [container]
-  (let [c (content)]
-    (map vector
-       (butlast (e/select c [:table [:tr (e/has [:td.title])]]))
-       (e/select c [:table [:tr (e/has [:td.subtext])]]))))
+(defn extract-items [lines]
+  (map extract-data lines))
 
 ;; Rendering
 
@@ -77,8 +89,10 @@
   [:#content :ol] (e/content (map item-model items)))
 
 (defn render-page []
-  (let [data (map extract-data (extract-lines (content)))]
-    (page data)))
+  (let [container (extract-container (fetch-hn))
+        lines (extract-lines container)
+        items (extract-items lines)]
+    (page items)))
 
 (c/defroutes app
   (c/GET "/" [] (render-page)))
