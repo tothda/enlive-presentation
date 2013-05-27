@@ -14,81 +14,55 @@
 
 (def h (html-resource "templates/heroes.html"))
 
-;; selectors
-(p (select h [:h1]))
+;; SELECTORS
+;; ---------
 
-(count (select h [:ul :li]))
+;; find the <h1> elemenets
 
-(p (select h [:ul#list :li :h2.name]))
+;; how many <a> elements are
 
-(select h [:div :> :a])
+;; find <a> elements inside <li>'s
 
-(p (select h [:ul [:li (nth-child 1)] :h2]))
+;; find the name of every hero
 
-(p (select h [:ul [:li (attr? :data-focus)] :h2]))
+;; find the name of the first hero (->)
 
-(p (select h [:ul [:li (attr= :data-focus "true")] :h2]))
+;; find the name of the hero in focus (attr? attr=)
 
-(p (select h [[:li (but (attr? :data-focus))] :h2]))
+;; how many <p> or <a> tags are insude <li>'s? (2 sets)
 
-(p (select h [:li #{[:p] [:a]}]))
+;; find all URL's (3)
 
-(select h #{[:h1] [:h2]})
+;; Find all element with exactly 4 child elements. (pred)
 
-(select h [(pred #(= (:tag %) :a))])
+;; Find all string nodes which longer than 20 chars. (text-pred)
 
-;; find all twitter URLS
-(-> h (select [:ul :a]) first :attrs :href)
-
-(:href (:attrs (first (select h [:ul :a]))))
+;; Find all element with a direct text child which contains the text "Clojure". (has, re-pred)
 
 
+;; TRANSFORMATIONS
+;; ---------------
 
 
+(sniptest "<p>foo</p>"
+          [:p] (wrap :div))
 
+(def n2 (html-snippet "<p>hello</p>"))
 
+(at n2 [:p] (wrap :div))
 
-(map #(get-in % [:attrs :href]) (select h [:ul :a]))
-
-
-
-
-
-
-(map (comp :href :attrs) (select h [:ul :a]))
-
-
-
-
-
-
-(select h [(text-pred #(re-find #"@" %))])
-
-;; find all element with twitter handle in the content
-
-
-;; ==========================================
-;; Transformations
-(sniptest "<span>foo</span>"
-          [:*] (wrap :strong))
-
-(def n2 (html-snippet "<div><span>hello</span></div>"))
-
-(at n2
-    [:span] (wrap :strong))
-
-(at n2
-    [:span] (wrap :strong)
-    [:div] (append {:tag :br :content nil :attrs nil}))
+(emit*
+ (at n2 [:p] (wrap :div)))
 
 (apply str
- (emit*
-   (at n2
-      [:span] (wrap :strong)
-      [:div] (append {:tag :br :content nil :attrs nil}))))
+       (emit*
+         (at n2 [:p] (wrap :div))))
+
+;; Infrastructure
 
 (declare t)
 
+;; Compojure app
 (c/defroutes app
   (c/GET "/" [] (t)))
 
@@ -97,58 +71,22 @@
 (.stop server)
 (.start server)
 
+(defn t [] "Hello Meetup!")
+
 (defmacro tt [ & forms]
   `(defn t []
      (emit* (at h ~@forms))))
 
 (tt)
 
-(tt [:a] (wrap :strong))
+;; change the title and the h1 to "Clojure Newbies" (content)
 
-(tt [:li :a] (wrap :strong))
+;; wrap every link in <strong> tags. (wrap)
 
-(tt [[:li (attr= :data-focus "true")]] (set-attr :style "background-color:yellow"))
+;; Change the background color of the hero in focus to yellow. (set-attr)
 
-(emit*
- (at
-   (html-snippet "<div>hello</div>")
-   [:div] (wrap :strong)))
+;; Add reference to the Enlive project in @cgrand's <li> (data structure, html)
 
+;; Change the @cgrand's twitter link (do->)
 
-
-(sniptest "<ul><li><a href='#'>link</a></li></ul>"
-          [:li] (clone-for [link ["one" "two"]]
-                           [:a] (do->
-                                 (content link)
-                                 (set-attr :href (str "#" link)))))
-
-
-;; Snippets
-
-(defsnippet post-snippet "blog_template.html" [:.post]
-  [post-title author body]
-  [:h2] (content post-title)
-  [:.author] (content author)
-  [:.body] (content body))
-
-;; Templates
-
-(deftemplate blog-template "blog_template.html"
-  [title posts]
-  [:h1] (content title)
-  [:#posts] (content (map post-snippet posts)))
-
-(deftemplate "template.html"
-  [data]
-  [:div] (substitute {:tag :p :attrs nil :content nil})
-  [:p] (content "hello"))
-
-(sniptest "<div>foo</div>"
-          [:div] (substitute {:tag :p :attrs nil :content nil})
-          [:p] (content "hello"))
-
-(sniptest "<div>foo</div>"
-          [:div] (substitute (html [:p]))
-          [:p] (content "hello"))
-
-(html [:p])
+;; Use clone-for for occupy Hungary (clone-for)

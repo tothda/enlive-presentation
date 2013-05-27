@@ -56,13 +56,10 @@
             <h2>What is HTML templating?</h2>
           </section>
           <section>
-            <h2>Solutions</h2>
+            <h2>Other solutions</h2>
           </section>
           <section>
-            <h2>Java Servlet</h2>
-            <p>
-              Generating html from code
-            </p>
+            <h2>Generating html from code</h2>
             <pre><code>
 public class HelloWWW extends HttpServlet {
   public void doGet(HttpServletRequest request,
@@ -80,10 +77,11 @@ public class HelloWWW extends HttpServlet {
   }
 }
               </code></pre>
+              <small>Java Servlet</small>
             </section>
 
             <section>
-              <h2>ERB</h2>
+              <h2>Generating HTML with embedded code</h2>
               <pre><code>
 <ul>
   <% for @item in @shopping_list %>
@@ -91,10 +89,11 @@ public class HelloWWW extends HttpServlet {
   <% end %>
 </ul>
               </code></pre>
+              <small>Ruby ERB template</small>
             </section>
 
             <section>
-              <h2>Handlebars</h2>
+              <h2>Generating HTML with embedded DSL</h2>
               <pre><code>
 <div class="post">
   <h1>By {{fullName author}}</h1>
@@ -108,6 +107,7 @@ public class HelloWWW extends HttpServlet {
   {{/each}}
 </div>
               </code></pre>
+              <small>Handlebars template</small>
             </section>
           </section>
         <section>
@@ -117,12 +117,12 @@ public class HelloWWW extends HttpServlet {
             <a href="http://clj-me.cgrand.net/">http://clj-me.cgrand.net/</a>
           </section>
           <section>
-            <h1>TL;DR</h1>
+            <h2>TL;DR</h2>
             <blockquote>
-              You take that plain HTML in and use selectors to select pieces of HTML and transformation functions to transform the HTML the way you want.
+              "You take that plain HTML in and use selectors to select pieces of HTML and transformation functions to transform the HTML the way you want."
             </blockquote>
             <br>
-            <p>By Anthony Grimes</p>
+            <small>Anthony Grimes</small>
           </section>
           <section data-transition="none">
             <img class="simple" src="images/enlive1.png" alt="">
@@ -152,7 +152,8 @@ public class HelloWWW extends HttpServlet {
             <h2>Why Enlive different?</h2>
             <ol>
               <li class="fragment">Code and markup are completely separate.</li>
-              <li class="fragment">You get to use CSS like syntax to manipulate HTML.</li>
+              <li class="fragment">You get to use CSS like syntax to query HTML. </li>
+              <li class="fragment"><strong>Suitable for <a href="http://en.wikipedia.org/wiki/Web_scraping">web scraping</a>.</strong></li>
               <li class="fragment">Template inheritance isn’t some fancy trick, it’s just function composition.</li>
               <li class="fragment">You have access to the full power of Clojure to manipulate your templates (yes, macros!).</li>
             </ol>
@@ -166,7 +167,7 @@ public class HelloWWW extends HttpServlet {
           <section>
             <h2>Parsers</h2>
             <p>A parser is a function from InputStream to nodes.</p>
-            <p>TODO: what is the difference between tagsoup and jsoup</p>
+            <p>Pluggable parser since (1.1.1)</p>
             <ol>
               <li><a href="http://home.ccil.org/~cowan/XML/tagsoup/">TagSoup</a></li>
               <li><a href="http://jsoup.org/">jsoup</a></li>
@@ -187,19 +188,6 @@ public class HelloWWW extends HttpServlet {
 
               ;; loading from File
               (html-resource (java.io.File "/tmp/foo.html"))
-            </code></pre>
-          </section>
-          <section>
-            <h2>Data stucture</h2>
-            <h3>aka. nodes</h3>
-            <pre><code class="clojure">
-(html-snippet "<ul id='list'><li>one</li><li>two</li></ul>") ; =>
-
-({:tag :ul,
-  :attrs {:id "list"},
-  :content
-  ({:tag :li, :attrs nil, :content ("one")}
-   {:tag :li, :attrs nil, :content ("two")})})
             </code></pre>
           </section>
         </section>
@@ -227,31 +215,41 @@ public class HelloWWW extends HttpServlet {
             <blockquote>
               To select elements which match several predicates, you need to group
 predicates into a vector: <strong>inside steps, vectors mean “and”</strong>.
-            </blockquote>
-            <br>
-            <pre><code class="clojure">
-[:p (attr? :lang)] ; match any elements with a lang attribute 
-                   ; inside a p element
-
-[[:p (attr? :lang)]] ; match any p with a lang attribute.
-            </code></pre>
+            </blockquote><br>
+            <p><code>[[:p (attr? :lang)]]</code></p><br>
+            <p><small>Matches any elements with a lang attribute inside a p element.</small></p>
           </section>
           <section>
             <blockquote>
-              Sets group predicates in an union. <strong>Hence inside steps, sets mean
-              “or”.</strong>
-            </blockquote>
-            <br>
-            <pre><code>
-[#{:div.class1 :div.class2}] ;; match every div which has either class1 or class2.
-            </code></pre>
+              Sets group predicates in a union. <strong>Hence inside steps, sets mean “or”.</strong>
+            </blockquote><br>
+            <p><code>[#{:div.class1 :div.class2}]</code></p><br>
+            <p><small>Matches every div which has either class1 or class2.</small></p>
           </section>
           <section>
+            <blockquote>
+              At the top level you can have a big “or” between selectors by wrapping several selectors in a set.
+            </blockquote><br>
+            <p><code>#{[:td :em] [:th :em]}</code></p><br>
+            <p><small>Matches any <code>em</code> insides either a <code>th</code> or a <code>td</code>.</small></p>
+          </section>
+          <section>
+            <h2>Builtin predicates</h2>
             <ul>
-              <li><a href="http://enlive.cgrand.net/syntax.html">http://enlive.cgrand.net/syntax.html</a></li>
-              <li>TODO: pred</li>
-              <li>TODO: text-pred</li>
-              <li>TODO: zip-pred</li>
+              <li>attr?, attr=, attr-has, attr-starts, attr-ends, attr-contains, attr|=</li>
+              <li>nth-child, nth-last-child</li>
+              <li>nth-of-type, nth-last-of-type</li>
+              <li>but</li>
+              <li>has</li>
+            </ul>
+            <a href="http://enlive.cgrand.net/syntax.html">http://enlive.cgrand.net/syntax.html</a>
+          </section>
+          <section>
+            <h2>Step constructors</h2>
+            <ul>
+              <li class="fragment"><code>(pred (fn [node] ...))</code></li>
+              <li class="fragment"><code>(text-pred (fn [str] ...))</code></li>
+              <li class="fragment"><code>(re-pred #"regexp")</code></li>
             </ul>
           </section>
         </section>
@@ -350,6 +348,11 @@ building the whole string.
           <section>
             <img src="images/demo.png" alt="Demo architecture">
           </section>
+        </section>
+
+        <section>
+          <h2>Tutorial:</h2>
+          <a href="https://github.com/swannodette/enlive-tutorial/">https://github.com/swannodette/enlive-tutorial/</a>
         </section>
       </div>
 
